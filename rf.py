@@ -17,8 +17,10 @@ def convert_data(extracted_data):
         print(len(i)/32)
         for j in range(0,int(len(i)/32)):
             num = int(len(i)/10)
-            lower_limit = j*int(len(i)/10)
-            upper_limit = (j+1)*int(len(i)/10)
+            if int(len(i)/32) < 10:
+                break
+            lower_limit = j*num
+            upper_limit = (j+1)*num
 
             average = sum(i[lower_limit:upper_limit])/float(num)
 
@@ -26,10 +28,12 @@ def convert_data(extracted_data):
                 sub_data.append('0')
             elif average > 0.6:
                 sub_data.append('1')
-        sub_data.pop(0)
-        sub_data.pop(-1)
-        sub_data.reverse()
-        data.append(sub_data)
+        
+        if len(sub_data) != 0 and sub_data[0] == '0' and sub_data[-1] == '1':
+            # sub_data.pop(0)
+            # sub_data.pop(-1)
+            sub_data.reverse()
+            data.append(sub_data)
     return data
 sdr = RtlSdr()
 
@@ -68,7 +72,7 @@ for i in samples_sq:
 i_prev = 0
 extracted_data_starts = []
 for i in range(0,len(sample_filtered)-1):
-    if sample_filtered[i] > 0.8 and sample_filtered[i+1] < 0.2 and i > i_prev + 345:
+    if sample_filtered[i] > 0.8 and sample_filtered[i+1] < 0.2 and i > i_prev + 325:
         extracted_data_starts.append(i+1)
         i_prev = i
         
@@ -81,7 +85,7 @@ extracted_data = []
 padding= [float(0.5) for i in range(20)]
 
 for i in extracted_data_starts:
-    extracted_data.append(sample_filtered[i:i+320])
+    extracted_data.append(sample_filtered[i:i+325])
 
 
 for i in convert_data(extracted_data):
